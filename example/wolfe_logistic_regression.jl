@@ -43,10 +43,11 @@ Ytt = Y[rp[Ntr+1:end]]
 ret = runtest(Xtr, Ytr, Xtt, Ytt, 0.0)
 
 import PyPlot.plt
-plt.figure(figsize=(12,5))
+plt.figure(figsize=(8,3))
 plt.semilogy([1:ret.iter+1], ret.f_all[1:ret.iter+1], color="green", linestyle="solid", marker="*")
 plt.xlabel("Iteration")
 plt.ylabel("Objective Function")
+plt.tight_layout()
 fn = "gd-logistic-regression"
 plt.savefig("fig/$(fn).svg", transparent=true, bbox_inches="tight", pad_inches=0)
 plt.savefig("fig/$(fn).pdf", transparent=true, bbox_inches="tight", pad_inches=0)
