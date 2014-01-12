@@ -1,4 +1,4 @@
-function wolfe_linesearcher(; c1=0.02, c2=0.9, t0=1, tol=0.01)
+function wolfe_linesearcher(; c1=0.01, c2=0.9, t0=1, tol=0.001)
     function linesearch{T}(p::OptimizationProblem, x::Vector{T}, d::Vector{T})
         low = convert(T, 0)
         high = inf(T)
