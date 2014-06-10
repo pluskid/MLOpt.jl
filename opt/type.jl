@@ -17,12 +17,13 @@ function objval{T}(p::OptimizationProblem, x::Vector{T})
 end
 
 function gradient{T}(p::OptimizationProblem, x::Vector{T})
-    error("compute gradient at x")
+    error("return the gradient at x")
 end
 
-# this function will only be called in 2nd order methods
-function hessian!{T}(p::OptimizationProblem, x::Vector{T}, h::Matrix{T})
-    error("compute hessian at x and store it in g")
+# this function will only be called in 2nd order methods, it returns the solution
+# of the equation: H(x) * z = d, where H(x) is the Hessian matrix at point x
+function solve_hessian{T}(p::OptimizationProblem, x::Vector{T}, d::Vector{T})
+    error("solve for hessian at x and store it in g")
 end
 
 # this function will only be called when exact linesearch is used

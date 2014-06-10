@@ -15,7 +15,8 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
     store_d::Bool = false,  # keep records of moving direction
     store_t::Bool = false,  # keep records of step size
 
-    wolfe_opt = {}, # only used in wolfe linesearch
+    wolfe_opt = {},         # only used in wolfe linesearch
+    backtrack_opt = {},     # only used in backtrack linesearch
     )
 
     #----------------------------------------
@@ -39,6 +40,8 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
 
     if direction == :gradient
         calcdir!() = ws.d = -ws.g
+    elseif direction == :newton
+        calcdir!() = ws.d = solve_hessian(p, ws.x_prev, -ws.g)
     else
         error("Unknown option <$direction> for direction calculating")
     end
@@ -47,6 +50,8 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
         linesearcher = linesearch
     elseif stepsize == :wolfe
         linesearcher = wolfe_linesearcher(; wolfe_opt...)
+    elseif stepsize == :backtrack
+        linesearcher = backtrack_linesearcher(; backtrack_opt...)
     else
         error("Unknown linesearch method: <$linesearch>")
     end

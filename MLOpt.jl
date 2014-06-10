@@ -3,7 +3,7 @@ module MLOpt
 include("opt/type.jl")
 
 include("opt/optimize.jl")
-include("opt/wolfe_condition.jl")
+include("opt/line_searcher.jl")
 
 include("ml/base.jl")
 include("ml/logistic_regression.jl")
