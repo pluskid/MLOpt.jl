@@ -5,9 +5,9 @@
 using MAT
 using MLOpt
 
-function runtest(X, Y, Xtt, Ytt, lam=0.0)
+function runtest(X, Y, Xtt, Ytt, lam=0.0, direction=:gradient, stepsize=:wolfe)
     problem = LogisticRegression{Float64}(X, Y, lam)
-    ret = optimize(problem, rand(dimension(problem)); verbose=true)
+    ret = optimize(problem, rand(dimension(problem)); verbose=true, direction=direction, stepsize=stepsize)
     w = ret.x
 
     Yhat = classify(problem, w, Xtt)
@@ -40,14 +40,23 @@ Ytr = Y[rp[1:Ntr]]
 Xtt = X[rp[Ntr+1:end],:]
 Ytt = Y[rp[Ntr+1:end]]
 
-ret = runtest(Xtr, Ytr, Xtt, Ytt, 0.0)
+lambda = 0.1
+ret = runtest(Xtr, Ytr, Xtt, Ytt, lambda)
 
 import PyPlot.plt
 plt.figure(figsize=(8,3))
-plt.semilogy([1:ret.iter+1], ret.f_all[1:ret.iter+1], color="green", linestyle="solid", marker="*")
+plt.semilogy([1:ret.iter+1], ret.f_all[1:ret.iter+1], color="green", linestyle="solid", marker="*", label="Gradient Descent")
 plt.xlabel("Iteration")
 plt.ylabel("Objective Function")
 plt.tight_layout()
 fn = "gd-logistic-regression"
+plt.savefig("fig/$(fn).svg", transparent=true, bbox_inches="tight", pad_inches=0)
+plt.savefig("fig/$(fn).pdf", transparent=true, bbox_inches="tight", pad_inches=0)
+
+ret = runtest(Xtr, Ytr, Xtt, Ytt, lambda, :newton, :backtrack)
+plt.semilogy([1:ret.iter+1], ret.f_all[1:ret.iter+1], color="red", linestyle="solid", marker=".", label="Damped Newton Method")
+plt.tight_layout()
+plt.legend()
+fn = "newton-logistic-regression"
 plt.savefig("fig/$(fn).svg", transparent=true, bbox_inches="tight", pad_inches=0)
 plt.savefig("fig/$(fn).pdf", transparent=true, bbox_inches="tight", pad_inches=0)

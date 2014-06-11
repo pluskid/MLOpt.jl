@@ -67,5 +67,14 @@ for i = 1:length(init_points)
 	plt.title(@sprintf "init = %.2f" init_x[1])
 end
 
-plt.savefig("fig/newton_1d.pdf", transparent=true, bbox_inches="tight", pad_inches=0)
-plt.savefig("fig/newton_1d.svg", transparent=true, bbox_inches="tight", pad_inches=0)
+plt.savefig("fig/newton-1d.pdf", transparent=true, bbox_inches="tight", pad_inches=0)
+plt.savefig("fig/newton-1d.svg", transparent=true, bbox_inches="tight", pad_inches=0)
+
+# plot the function
+plt.figure(figsize=(3, 4))
+x = linspace(-15,15,100)
+y = log(exp(x) + exp(-x))
+plt.plot(x,y)
+plt.title("log(exp(x)+exp(-x))")
+plt.savefig("fig/1d-func.pdf", transparent=true, bbox_inches="tight", pad_inches=0)
+plt.savefig("fig/1d-func.svg", transparent=true, bbox_inches="tight", pad_inches=0)

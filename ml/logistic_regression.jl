@@ -18,6 +18,13 @@ function gradient{T}(p::LogisticRegression{T}, w::Vector{T})
     vec(sum(- expval ./ (1+expval) .* p.Y .* p.X, 1)' + p.lam * w)
 end
 
+function solve_hessian{T}(p::LogisticRegression{T}, w::Vector{T}, d::Vector{T})
+    expval = exp(-p.Y .* (p.X * w))
+    weight = 1 ./ (expval + 1./expval + 2)
+    hessian = (weight .* p.X)' * p.X + p.lam * eye(size(p.X, 2))
+    hessian \ d
+end
+
 function classify{T}(p::LogisticRegression{T}, w::Vector{T}, X::Matrix{T})
     sign(X * w)
 end
