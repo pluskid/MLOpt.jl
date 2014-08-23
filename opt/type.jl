@@ -31,6 +31,12 @@ function linesearch{T}(p::OptimizationProblem, x::Vector{T}, d::Vector{T})
     error("compute exact line search at x in direction d")
 end
 
+# this function do necessary projection into the feasible set
+# for constrained optimization
+function projection{T}(p::OptimizationProblem, x::Vector{T})
+    error("project x into the feasible region")
+end
+
 
 #************************************************************
 # Working set, stores everything during optimization

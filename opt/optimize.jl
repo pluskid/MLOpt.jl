@@ -15,6 +15,9 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
     store_d::Bool = false,  # keep records of moving direction
     store_t::Bool = false,  # keep records of step size
 
+    do_projection::Bool = false, # projected gradient descent?
+    stepsize_ap::Symbol = :backtrack, # linesearch after projection
+
     wolfe_opt = {},         # only used in wolfe linesearch
     backtrack_opt = {},     # only used in backtrack linesearch
     )
@@ -46,14 +49,19 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
         error("Unknown option <$direction> for direction calculating")
     end
 
-    if stepsize == :exact
-        linesearcher = linesearch
-    elseif stepsize == :wolfe
-        linesearcher = wolfe_linesearcher(; wolfe_opt...)
-    elseif stepsize == :backtrack
-        linesearcher = backtrack_linesearcher(; backtrack_opt...)
-    else
-        error("Unknown linesearch method: <$linesearch>")
+    get_linesearcher(stepsize) = 
+        if stepsize == :exact
+            linesearch
+        elseif stepsize == :wolfe
+            wolfe_linesearcher(; wolfe_opt...)
+        elseif stepsize == :backtrack
+            backtrack_linesearcher(; backtrack_opt...)
+        else
+            error("Unknown linesearch method: <$linesearch>")
+        end
+    linesearcher = get_linesearcher(stepsize)
+    if do_projection
+        linesearcher_ap = get_linesearcher(stepsize_ap)
     end
     
     #----------------------------------------
@@ -73,6 +81,12 @@ function optimize{T}(p::OptimizationProblem, x::Vector{T};
         
         # linesearch
         ws.t = linesearcher(p, ws.x_prev, ws.d)
+
+        # (optional) projection
+        if do_projection
+            ws.d = projection(p, ws.x_prev + ws.t*ws.d) - ws.x_prev
+            ws.t = linesearcher_ap(p, ws.x_prev, ws.d)
+        end
 
         # move
         ws.x = ws.x_prev + ws.t*ws.d
