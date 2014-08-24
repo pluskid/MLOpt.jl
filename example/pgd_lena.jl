@@ -76,7 +76,7 @@ img_fwt = [img_fwt, -img_fwt]
 imwrite(img, "fig/pgd-lena-orig.jpg")
 
 # add noise to the image
-img.data += 0.1*randn(size(img.data))
+img.data += 0.2*randn(size(img.data))
 imwrite(img, "fig/pgd-lena-noisy.jpg")
 
 # initialize optimization problem
