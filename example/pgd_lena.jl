@@ -1,14 +1,10 @@
 # A demo for using projected gradient descent to solve
 # the LASSO problem.
 #
-# NOTE: wavelet transformations from the package Wavelets.jl are used
-# in this demo. At the time this demo is written, Wavelets.jl is a 
-# standalone package. But it is not included in the standard julia
-# package index, because there is a plan to incorporate this package
-# into the larger julia/DSP package. Currently you could install this
-# package by simply cloning the git repo to your local package storage
-# (typically ~/.julia or ~/.julia/v0.3)
+# Requires the following packages:
 #
+#   Pkg.add("Wavelets")
+#   Pkg.add("Images")
 
 using MLOpt
 using Images
@@ -17,7 +13,7 @@ using Wavelets
 type DemoProblem <: OptimizationProblem
     img::Image{Float64,2,Array{Float64,2}}
     lambda::Float64
-    wavelet::WaveletType
+    wavelet::DiscreteWavelet
 
     img_fwt::Vector{Float64} # cached for computing gradient
 end
@@ -60,7 +56,7 @@ function real_x(x::Vector{Float64})
     return x_pos-x_neg
 end
 function recover_image(p::DemoProblem, x::Vector{Float64})
-    iwt(reshape(real_x(x), size(p.img.data)), p.wavelet)
+    idwt(reshape(real_x(x), size(p.img.data)), p.wavelet)
 end
 
 
@@ -68,9 +64,9 @@ end
 # Prepare data & problem
 #****************************************
 lambda = 0.1
-wavelet = POfilter("sym5")
-img = float64sc(imread("data/lena512gray.bmp"))
-img_fwt = reshape(fwt(img.data, wavelet), length(img.data))
+the_wavelet = wavelet(WT.sym5)
+img = reinterpret(Float64, float64(imread("data/lena512gray.bmp")))
+img_fwt = reshape(dwt(img.data, the_wavelet), length(img.data))
 img_fwt = [img_fwt, -img_fwt]
 
 imwrite(img, "fig/pgd-lena-orig.jpg")
@@ -80,7 +76,7 @@ img.data += 0.2*randn(size(img.data))
 imwrite(img, "fig/pgd-lena-noisy.jpg")
 
 # initialize optimization problem
-problem = DemoProblem(img, lambda, wavelet, img_fwt)
+problem = DemoProblem(img, lambda, the_wavelet, img_fwt)
 init_x = MLOpt.projection(problem, randn(dimension(problem)))
 
 # run optimization
