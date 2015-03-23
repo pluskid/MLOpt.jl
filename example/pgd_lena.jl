@@ -63,11 +63,9 @@ end
 #****************************************
 # Prepare data & problem
 #****************************************
-lambda = 0.1
+lambda = 0.5
 the_wavelet = wavelet(WT.sym5)
 img = reinterpret(Float64, float64(imread("data/lena512gray.bmp")))
-img_fwt = reshape(dwt(img.data, the_wavelet), length(img.data))
-img_fwt = [img_fwt, -img_fwt]
 
 imwrite(img, "fig/pgd-lena-orig.jpg")
 
@@ -76,13 +74,15 @@ img.data += 0.2*randn(size(img.data))
 imwrite(img, "fig/pgd-lena-noisy.jpg")
 
 # initialize optimization problem
+img_fwt = reshape(dwt(img.data, the_wavelet), length(img.data))
+img_fwt = [img_fwt, -img_fwt]
 problem = DemoProblem(img, lambda, the_wavelet, img_fwt)
 init_x = MLOpt.projection(problem, randn(dimension(problem)))
 
 # run optimization
 ret = optimize(problem, init_x; direction = :gradient, stepsize = :exact,
                                 do_projection = true, stepsize_ap = :backtrack,
-                                maxiter = 25, verbose = true)
+                                maxiter = 25, verbose = true, ftol = 1e-10)
 
 # recover denoised image
 rcv_img = recover_image(problem, ret.x)
